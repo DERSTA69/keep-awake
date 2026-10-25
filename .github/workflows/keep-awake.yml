@@ -1,0 +1,26 @@
+# Render's free plan sleeps after ~15 idle minutes and Supabase's free plan pauses after a quiet week.
+# A light request every 10 minutes keeps both apps (and their databases) awake.
+# This repository is public only because public repositories get unlimited free Actions minutes;
+# it contains nothing but these two public addresses.
+name: Keep apps awake
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    strategy:
+      fail-fast: false
+      matrix:
+        url:
+          - https://landlord.unigilld.com/api/properties
+          - https://gasgo.unigilld.com/sellers
+    steps:
+      - name: Request ${{ matrix.url }}
+        run: curl --fail --silent --show-error --max-time 120 -o /dev/null "${{ matrix.url }}"
